@@ -17,6 +17,7 @@ function ready(req, res) {
     return res.status(503).json({
       ready: false,
       dbState: state,
+      service: "acquire",
       message: "MongoDB no está listo"
     });
   }
@@ -48,16 +49,11 @@ async function fetchKunna(timeStart, timeEnd) {
     order: "DESC"
   };
 
-  console.log(headers);
-  console.log(body);
-
   const response = await fetch(url, {
     method: "POST",
     headers: headers,
     body: JSON.stringify(body)
   });
-
-  console.log(response);
 
   if (!response.ok) {
     throw new Error(`KUNNA_BAD_STATUS:${response.status}`);
@@ -66,34 +62,23 @@ async function fetchKunna(timeStart, timeEnd) {
   const json = await response.json();
   const result = json.result;
 
-  console.log(json);
-  console.log(result);
-
   if (!result || !Array.isArray(result.columns) || !Array.isArray(result.values)) {
     throw new Error("KUNNA_INVALID_RESULT");
   }
   return result;
 }
 
-async function getKUNNA(req, res) {
+async function data(req, res) {
   try {
     
-    const now = new Date();
-    const fiveMinutesAgo = new Date(now.getTime() - 5 * 60 * 1000);
+    let timeEnd = new Date();
 
-    if (req.query.start) {
-      timeStart = new Date(req.query.start);
-    } else {
-      timeStart = fiveMinutesAgo;
+    if (timeEnd.getHours() < 23){
+      timeEnd = new Date(timeEnd.getTime() - 86400 * 1000);
     }
 
-    if (req.query.end){
-      timeEnd = new Date(req.query.end);
-    } else{
-      timeEnd = now
-    }
+    const timeStart = new Date(timeEnd.getTime() - 3 * 86400 * 1000);
 
-    
     const result = await fetchKunna(timeStart, timeEnd);
     
     if (!result.values.length) {
@@ -102,38 +87,38 @@ async function getKUNNA(req, res) {
       });
     }
 
-    console.log(result);
+    const values = result.values;
 
-    const saved = await guardarDatos(result);
+    let features = values.map(row => row[2]);
 
-    const lastRow = result.values[0];
+    features = [...features, timeEnd.getHours(), timeEnd.getDay(), timeEnd.getMonth(), timeEnd.getDate()];
 
-    if (!Array.isArray(lastRow)) {
-      throw new Error("KUNNA_INVALID_ROW");
-    }
+    const saved = await guardarDatos({
+      result,
+      features,
+      timestamp: new Date()
+    });
 
     res.status(200).json({
-      acquireId: saved._id,
-      timestamp: saved.timestamp,
-      features: lastRow,
-      featureCount: lastRow.length,
-      columns: result.columns
+      dataId: saved._id,
+      features: features,
+      featureCount: features.length,
+      scalerVersion: "v1",
+      createdAt: saved.timestamp
     });
 
   } 
   catch (err) {
-    console.error("Error en getKUNNA:", err);
+    console.error("Error en data:", err);
     res.status(500).json({
-      error: "KUNNA_ERROR",
+      error: "Internal error",
       message: err.message
     });
   }
 }
 
-
-
 module.exports = {
   health,
   ready,
-  getKUNNA
+  data
 };

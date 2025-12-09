@@ -4,8 +4,8 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const AcquireSchema = new Schema({
-    columns: { type: [String], required: true },
-    values: { type: Array, required: true },
+    result: { type: Object, required: true },
+    features: { type: [Number], required: true },
     timestamp: { type: Date, default: Date.now }
 });
 
