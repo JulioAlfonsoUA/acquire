@@ -67,7 +67,7 @@ async function fetchKunna(timeStart, timeEnd) {
   }
   return result;
 }
-//[27.39, 27.903, 28.65, 15, 1, 11, 8]
+
 async function data(req, res) {
   try {
     
