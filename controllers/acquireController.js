@@ -67,7 +67,7 @@ async function fetchKunna(timeStart, timeEnd) {
   }
   return result;
 }
-
+//[27.39, 27.903, 28.65, 15, 1, 11, 8]
 async function data(req, res) {
   try {
     
@@ -111,7 +111,7 @@ async function data(req, res) {
   catch (err) {
     console.error("Error en data:", err);
     res.status(500).json({
-      error: "Internal error",
+      error: "Internal error in acquire",
       message: err.message
     });
   }

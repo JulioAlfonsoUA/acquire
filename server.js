@@ -6,8 +6,8 @@ const express = require("express");
 const mongoose = require("mongoose");
 const acquireRoutes = require("./routes/acquireRoutes");
 
-const PORT = process.env.PORT || 3001;
-const MONGO_URI = process.env.MONGO_URI;
+const PORT = process.env.ACQUIRE_PORT || 3001;
+const MONGO_URI = process.env.MONGO_URI_ACQUIRE;
 
 const app = express();
 app.use(express.json());
