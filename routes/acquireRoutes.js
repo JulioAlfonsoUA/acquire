@@ -6,7 +6,6 @@ const acquireController = require("../controllers/acquireController");
 
 // Contrato del servicio ADQUISICION
 router.get("/health", acquireController.health);
-router.get("/ready", acquireController.ready);
-router.get("/data", acquireController.data);
+router.post("/data", acquireController.data);
 
 module.exports = router;

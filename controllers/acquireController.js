@@ -10,26 +10,6 @@ function health(req, res) {
   });
 }
 
-function ready(req, res) {
-  const state = mongoose.connection.readyState;
-
-  if (state !== 1) {
-    return res.status(503).json({
-      ready: false,
-      dbState: state,
-      service: "acquire",
-      message: "MongoDB no está listo"
-    });
-  }
-
-  res.json({
-    ready: true,
-    dbState: state,
-    service: "acquire",
-    message: "MongoDB conexion OK"
-  });
-}
-
 async function fetchKunna(timeStart, timeEnd) {
   const url = process.env.KUNNA_URL;
 
@@ -119,6 +99,5 @@ async function data(req, res) {
 
 module.exports = {
   health,
-  ready,
   data
 };
